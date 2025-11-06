@@ -18,7 +18,7 @@ public class medicoViewController {
         this.prescribirService = prescribirService;
         this.recetaDao = recetaDao;
         this.recetaView = recetaView;
-        this.recetaController = new recetaController(recetaView, recetaDao);
-        this.prescripcionController = new prescripcionController(prescribir, prescribirService, medicoUsername, recetaController);
+        this.recetaController = new recetaController(recetaView, /* legacy path keeps using DAO-based; remote controller is instantiated elsewhere */ null);
+        this.prescripcionController = new prescripcionController(prescribir, prescribirService, medicoUsername, this.recetaController);
     }
 }

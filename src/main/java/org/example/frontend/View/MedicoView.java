@@ -73,14 +73,18 @@ public class MedicoView extends JPanel {
         labelNombre.setBounds(20, 60, 80, 30);
         JLabel labelEspecialidad = new JLabel("Especialidad:");
         labelEspecialidad.setBounds(20, 100, 80, 30);
+        JLabel labelBuscar = new JLabel("Buscar (ID o Nombre):");
+        labelBuscar.setBounds(450, 20, 160, 30);
 
         // Campos
         campoId = new JTextField();
         campoNombre = new JTextField();
         campoEspecialidad = new JTextField();
+        campoBusqNombre = new JTextField();
         campoId.setBounds(110, 20, 150, 30);
         campoNombre.setBounds(110, 60, 150, 30);
         campoEspecialidad.setBounds(110, 100, 150, 30);
+        campoBusqNombre.setBounds(620, 20, 200, 30);
 
         // Botones
         guardarButton = new JButton("Guardar");
@@ -88,9 +92,9 @@ public class MedicoView extends JPanel {
         buscarButton = new JButton("Buscar");
         guardarButton.setBounds(300, 20, 100, 30); // Ubica el botón de guardar junto a los campos
         borrarButton.setBounds(300, 60, 100, 30);
-        buscarButton.setBounds(300, 100, 100, 30);
+        buscarButton.setBounds(620, 60, 100, 30);
 
-        scrollPane.setBounds(20, 150, 400, 200); // Ubica la tabla debajo de los campos y botones
+        scrollPane.setBounds(20, 150, 800, 200); // tabla más ancha
 
         // Agregar labels y campos
         jPanelMedico.add(labelId);
@@ -99,6 +103,8 @@ public class MedicoView extends JPanel {
         jPanelMedico.add(campoNombre);
         jPanelMedico.add(labelEspecialidad);
         jPanelMedico.add(campoEspecialidad);
+        jPanelMedico.add(labelBuscar);
+        jPanelMedico.add(campoBusqNombre);
         jPanelMedico.add(guardarButton);
         jPanelMedico.add(borrarButton);
         jPanelMedico.add(buscarButton);

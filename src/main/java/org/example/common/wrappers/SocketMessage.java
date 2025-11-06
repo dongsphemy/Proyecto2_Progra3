@@ -7,7 +7,11 @@ public class SocketMessage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public enum MessageType {
-        LOGIN, LOGOUT, CHAT, SYSTEM, PING, ACTIVE_USERS
+        LOGIN, LOGOUT, CHAT, SYSTEM, PING, ACTIVE_USERS,
+        // RPC support
+        RESPONSE,
+        LOAD_PACIENTES, LOAD_MEDICAMENTOS, LISTAR_RECETAS, OBTENER_RECETA,
+        INICIAR_GUARDAR_RECETA, AGREGAR_DETALLE, ELIMINAR_DETALLE, REGISTRAR_RECETA
     }
 
     private MessageType type;
@@ -16,6 +20,12 @@ public class SocketMessage implements Serializable {
     private String payload; // text message or other simple payload
     private userWrapper user; // used for LOGIN to send user info
     private Instant timestamp;
+
+    // RPC correlation
+    private String correlationId; // request/response correlation
+    private boolean success = true; // default true; set false on error
+    private String error; // error message when success=false
+    private Object body; // generic payload for RPC (must be Serializable)
 
     public SocketMessage() {
         this.timestamp = Instant.now();
@@ -47,6 +57,18 @@ public class SocketMessage implements Serializable {
     public Instant getTimestamp() { return timestamp; }
     public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
 
+    public String getCorrelationId() { return correlationId; }
+    public void setCorrelationId(String correlationId) { this.correlationId = correlationId; }
+
+    public boolean isSuccess() { return success; }
+    public void setSuccess(boolean success) { this.success = success; }
+
+    public String getError() { return error; }
+    public void setError(String error) { this.error = error; }
+
+    public Object getBody() { return body; }
+    public void setBody(Object body) { this.body = body; }
+
     @Override
     public String toString() {
         return "SocketMessage{" +
@@ -56,6 +78,10 @@ public class SocketMessage implements Serializable {
                 ", payload='" + payload + '\'' +
                 ", user=" + user +
                 ", timestamp=" + timestamp +
+                ", correlationId='" + correlationId + '\'' +
+                ", success=" + success +
+                ", error='" + error + '\'' +
+                ", body=" + (body != null ? body.getClass().getSimpleName() : "null") +
                 '}';
     }
 }

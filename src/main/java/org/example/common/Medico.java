@@ -8,19 +8,19 @@ public class Medico extends AbstractUser implements Serializable {
 
     private String especialidad;
 
-    // 🔹 Constructor vacío (requerido para serialización y frameworks)
+    //constructor vacio
     public Medico() {
         super();
-        this.setRole("Medico"); // asegura que siempre tenga el rol correcto
+        this.setRole("Medico");
     }
 
-    // 🔹 Constructor completo
+    // constructor con parametros
     public Medico(String name, String password, String id, String especialidad) {
         super(name, password, "Medico", id);
         this.especialidad = especialidad;
     }
 
-    // === Getters y Setters ===
+    //getters y setters
     public String getEspecialidad() {
         return especialidad;
     }

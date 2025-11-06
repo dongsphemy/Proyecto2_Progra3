@@ -18,7 +18,7 @@ public class Receta implements Serializable {
     private String estado; // "en_proceso", "confeccionada", "entregada"
     private List<DetalleMedicamento> medicamentos = new ArrayList<>();
 
-    // ===== Constructores =====
+    //  constructores
     public Receta() {
         this.fechaConfeccion = LocalDate.now();
         this.estado = "en_proceso";
@@ -32,7 +32,7 @@ public class Receta implements Serializable {
         this.estado = "en_proceso";
     }
 
-    // ===== Getters y Setters =====
+    // getters y setters
     public String getIdReceta() {
         return idReceta;
     }
@@ -89,7 +89,7 @@ public class Receta implements Serializable {
         this.medicamentos = medicamentos;
     }
 
-    // ===== Métodos de negocio =====
+    // métodos para agregar y eliminar medicamentos
     public void agregarMedicamento(DetalleMedicamento detalle) {
         medicamentos.add(detalle);
     }

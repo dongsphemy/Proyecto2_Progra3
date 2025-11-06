@@ -6,13 +6,13 @@ public class Farmaceutico extends AbstractUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // 🔹 Constructor vacío
+    // constructor vacio
     public Farmaceutico() {
         super();
         this.setRole("Farmaceutico"); // asegúrate que coincida con ENUM de la BD
     }
 
-    // 🔹 Constructor completo
+    // const
     public Farmaceutico(String name, String password, String id) {
         super(name, password, "Farmaceutico", id);
     }

@@ -4,6 +4,7 @@ import org.example.common.*;
 import org.example.backend.dao.*;
 import org.example.frontend.View.loginView;
 import org.example.frontend.View.registroView;
+import org.example.frontend.proxy.BackendProxy;
 
 import javax.swing.*;
 
@@ -14,17 +15,20 @@ public class registroController {
     private PacienteDao pacienteDao;
     private MedicoDao medicoDao;
     private FarmaceuticoDao farmaceuticoDao;
+    private final BackendProxy backendProxy;
 
     public registroController(registroView view,
                               UsersDao usersDao,
                               PacienteDao pacienteDao,
                               MedicoDao medicoDao,
-                              FarmaceuticoDao farmaceuticoDao) {
+                              FarmaceuticoDao farmaceuticoDao,
+                              BackendProxy backendProxy) {
         this.view = view;
         this.usersDao = usersDao;
         this.pacienteDao = pacienteDao;
         this.medicoDao = medicoDao;
         this.farmaceuticoDao = farmaceuticoDao;
+        this.backendProxy = backendProxy;
 
         initController();
     }
@@ -114,7 +118,7 @@ public class registroController {
             JOptionPane.showMessageDialog(view, "¡Registro exitoso!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             view.dispose();
             loginView loginView = new loginView();
-            new loginController(loginView, usersDao);
+            new loginController(loginView, usersDao, backendProxy);
             loginView.setVisible(true);
 
         } catch (Exception e) {

@@ -73,6 +73,8 @@ public class farmaceuticoView extends JPanel { // en realidad es farmaceuticoPan
         labelClave.setBounds(20, 60, 80, 30);
         JLabel labelNombre = new JLabel("Nombre:");
         labelNombre.setBounds(20, 100, 80, 30);
+        JLabel labelBuscar = new JLabel("Buscar (ID o Nombre):");
+        labelBuscar.setBounds(450, 20, 160, 30);
 
         // Campos de entrada
         campoId = new JTextField();
@@ -82,6 +84,7 @@ public class farmaceuticoView extends JPanel { // en realidad es farmaceuticoPan
         campoId.setBounds(110, 20, 150, 30);
         campoClave.setBounds(110, 60, 150, 30);
         campoNombre.setBounds(110, 100, 150, 30);
+        campoBusqNombre.setBounds(620, 20, 200, 30);
 
         // Botones
         guardarButton = new JButton("Guardar");
@@ -89,7 +92,7 @@ public class farmaceuticoView extends JPanel { // en realidad es farmaceuticoPan
         buscarButton = new JButton("Buscar");
         guardarButton.setBounds(300, 20, 100, 30);
         borrarButton.setBounds(300, 60, 100, 30);
-        buscarButton.setBounds(300, 100, 100, 30);
+        buscarButton.setBounds(620, 60, 100, 30);
 
         scrollPane.setBounds(20, 180, 850, 150);
 
@@ -100,6 +103,8 @@ public class farmaceuticoView extends JPanel { // en realidad es farmaceuticoPan
         jPanelFarmaceutico.add(campoClave);
         jPanelFarmaceutico.add(labelNombre);
         jPanelFarmaceutico.add(campoNombre);
+        jPanelFarmaceutico.add(labelBuscar);
+        jPanelFarmaceutico.add(campoBusqNombre);
         jPanelFarmaceutico.add(guardarButton);
         jPanelFarmaceutico.add(borrarButton);
         jPanelFarmaceutico.add(buscarButton);

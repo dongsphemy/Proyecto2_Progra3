@@ -2,12 +2,17 @@ package org.example.backend.server;
 
 import org.example.common.wrappers.SocketMessage;
 import org.example.common.wrappers.userWrapper;
+import org.example.backend.dao.*;
+import org.example.backend.service.PrescripcionService;
+import org.example.common.*;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.time.LocalDate;
+import java.util.List;
 
 public class ClientHandler implements Runnable {
     private final Socket socket;
@@ -15,8 +20,8 @@ public class ClientHandler implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private volatile boolean running = false;
-    private String clientId; // username/id of connected user
-    private String clientName; // human-readable name
+    private String clientId;
+    private String clientName;
 
     public ClientHandler(Socket socket, BackendServer server) {
         this.socket = socket;
@@ -61,8 +66,143 @@ public class ClientHandler implements Runnable {
             case CHAT -> handleChat(msg);
             case PING -> sendPong();
             case SYSTEM -> System.out.println("SYSTEM message: " + msg.getPayload());
+            // RPC endpoints
+            case LOAD_PACIENTES -> rpcLoadPacientes(msg);
+            case LOAD_MEDICAMENTOS -> rpcLoadMedicamentos(msg);
+            case LISTAR_RECETAS -> rpcListarRecetas(msg);
+            case OBTENER_RECETA -> rpcObtenerReceta(msg);
+            case INICIAR_GUARDAR_RECETA -> rpcIniciarGuardarReceta(msg);
+            case AGREGAR_DETALLE -> rpcAgregarDetalle(msg);
+            case ELIMINAR_DETALLE -> rpcEliminarDetalle(msg);
+            case REGISTRAR_RECETA -> rpcRegistrarReceta(msg);
             default -> System.out.println("Unhandled message type: " + msg.getType());
         }
+    }
+
+    private void rpcLoadPacientes(SocketMessage req) {
+        try {
+            PacienteDao pacienteDao = new PacienteDao();
+            var list = pacienteDao.getAllPacientes();
+            replyOk(req, list);
+        } catch (Exception e) {
+            replyErr(req, e);
+        }
+    }
+
+    private void rpcLoadMedicamentos(SocketMessage req) {
+        try {
+            MedicamentoDao medicamentoDao = new MedicamentoDao();
+            var list = medicamentoDao.loadMedicamentos().getMedicamentos();
+            replyOk(req, list);
+        } catch (Exception e) {
+            replyErr(req, e);
+        }
+    }
+
+    private void rpcListarRecetas(SocketMessage req) {
+        try {
+            RecetaDao recetaDao = new RecetaDao();
+            List<Receta> list = recetaDao.findAll();
+            replyOk(req, list);
+        } catch (Exception e) {
+            replyErr(req, e);
+        }
+    }
+
+    private void rpcObtenerReceta(SocketMessage req) {
+        try {
+            RecetaDao recetaDao = new RecetaDao();
+            Receta r = recetaDao.findById(req.getPayload()).orElse(null);
+            if (r == null) throw new IllegalArgumentException("Receta no encontrada");
+            replyOk(req, r);
+        } catch (Exception e) {
+            replyErr(req, e);
+        }
+    }
+
+    private void rpcIniciarGuardarReceta(SocketMessage req) {
+        try {
+            String[] parts = req.getPayload().split("\\|");
+            String pacienteUsername = parts[0];
+            String medicoUsername = parts.length > 1 ? parts[1] : null;
+
+            PacienteDao pacienteDao = new PacienteDao();
+            MedicoDao medicoDao = new MedicoDao();
+            RecetaDao recetaDao = new RecetaDao();
+            MedicamentoDao medicamentoDao = new MedicamentoDao();
+            PrescripcionService service = new PrescripcionService(pacienteDao, medicoDao, recetaDao, medicamentoDao);
+
+            Receta temp = service.iniciarReceta(pacienteUsername);
+            Receta guardada = service.guardarReceta(temp, medicoUsername);
+            replyOk(req, guardada);
+        } catch (Exception e) {
+            replyErr(req, e);
+        }
+    }
+
+    private void rpcAgregarDetalle(SocketMessage req) {
+        try {
+            String idReceta = req.getPayload();
+            DetalleMedicamento det = (DetalleMedicamento) req.getBody();
+
+            RecetaDao recetaDao = new RecetaDao();
+            // persist detail in DB
+            new DetalleMedicamentoDao().addDetalleByLogicalId(idReceta, det);
+            // reload receta with details
+            Receta receta = recetaDao.findById(idReceta).orElseThrow(() -> new IllegalArgumentException("Receta no encontrada"));
+            replyOk(req, receta);
+        } catch (Exception e) {
+            replyErr(req, e);
+        }
+    }
+
+    private void rpcEliminarDetalle(SocketMessage req) {
+        try {
+            String[] parts = req.getPayload().split("\\|");
+            String idReceta = parts[0];
+            String code = parts[1];
+            RecetaDao recetaDao = new RecetaDao();
+            new DetalleMedicamentoDao().removeDetalleByLogicalIdAndCode(idReceta, code);
+            Receta receta = recetaDao.findById(idReceta).orElseThrow(() -> new IllegalArgumentException("Receta no encontrada"));
+            replyOk(req, receta);
+        } catch (Exception e) {
+            replyErr(req, e);
+        }
+    }
+
+    private void rpcRegistrarReceta(SocketMessage req) {
+        try {
+            String idReceta = req.getPayload();
+            LocalDate fechaRetiro = (LocalDate) req.getBody();
+            RecetaDao recetaDao = new RecetaDao();
+            Receta receta = recetaDao.findById(idReceta).orElseThrow(() -> new IllegalArgumentException("Receta no encontrada"));
+            if (receta.getMedicamentos() == null || receta.getMedicamentos().isEmpty()) {
+                throw new IllegalStateException("No se puede registrar una receta sin medicamentos");
+            }
+            receta.registrar(fechaRetiro);
+            recetaDao.update(receta);
+            replyOk(req, receta);
+        } catch (Exception e) {
+            replyErr(req, e);
+        }
+    }
+
+    private void replyOk(SocketMessage req, Object body) {
+        SocketMessage resp = new SocketMessage();
+        resp.setType(SocketMessage.MessageType.RESPONSE);
+        resp.setCorrelationId(req.getCorrelationId());
+        resp.setSuccess(true);
+        resp.setBody(body);
+        try { sendMessage(resp); } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    private void replyErr(SocketMessage req, Exception ex) {
+        SocketMessage resp = new SocketMessage();
+        resp.setType(SocketMessage.MessageType.RESPONSE);
+        resp.setCorrelationId(req.getCorrelationId());
+        resp.setSuccess(false);
+        resp.setError(ex.getMessage());
+        try { sendMessage(resp); } catch (IOException e) { e.printStackTrace(); }
     }
 
     private void handleLogin(SocketMessage msg) {

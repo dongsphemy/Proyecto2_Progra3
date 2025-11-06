@@ -1,6 +1,5 @@
 package org.example.frontend.View;
 
-import org.example.backend.dao.PacienteDao;
 import org.example.common.DetalleMedicamento;
 import org.example.common.Paciente;
 
@@ -32,10 +31,6 @@ public class prescribirView extends JPanel {
     public prescribirView() {
         setLayout(new BorderLayout(10, 10));
         initComponents();
-        // Llenar automáticamente el combo de pacientes
-        PacienteDao pacienteDao = new PacienteDao();
-        List<Paciente> pacientes = pacienteDao.getAllPacientes(); // Asumiendo que existe este método
-        setPacientesCombo(pacientes);
     }
 
     private void initComponents() {
@@ -124,18 +119,14 @@ public class prescribirView extends JPanel {
         JOptionPane.showMessageDialog(this, message);
     }
 
-    public void setPacientesCombo(List<Paciente> pacientes) {
+    // Estos métodos permiten poblar los combos desde el controlador (remoto)
+    public void setPacientesComboItems(List<String> items) {
         comboPacientes.removeAllItems();
-        for (Paciente p : pacientes) {
-            comboPacientes.addItem(p.getName()); // O puedes usar p.getId() si prefieres mostrar el ID
-        }
+        for (String s : items) comboPacientes.addItem(s);
     }
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Prescribir Receta");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 500);
-        frame.add(new prescribirView());
-        frame.setVisible(true);
+    public void setMedicamentosComboItems(List<String> items) {
+        comboMedicamentos.removeAllItems();
+        for (String s : items) comboMedicamentos.addItem(s);
     }
 }

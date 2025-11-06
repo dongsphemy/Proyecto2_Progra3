@@ -4,6 +4,9 @@ import org.example.common.*;
 import org.example.backend.dao.*;
 import org.example.common.wrappers.userWrapper;
 import org.example.frontend.View.*;
+import org.example.frontend.proxy.BackendProxy;
+import org.example.frontend.service.RemotePrescripcionService;
+import org.example.frontend.service.RemoteRecetaService;
 
 import javax.swing.*;
 
@@ -11,10 +14,12 @@ public class loginController {
 
     private loginView view;
     private UsersDao usersDao;
+    private final BackendProxy backendProxy;
 
-    public loginController(loginView view, UsersDao usersDao) {
+    public loginController(loginView view, UsersDao usersDao, BackendProxy backendProxy) {
         this.view = view;
         this.usersDao = usersDao;
+        this.backendProxy = backendProxy;
         initController();
     }
 
@@ -35,13 +40,14 @@ public class loginController {
         MedicoDao medicoDao = new MedicoDao();
         FarmaceuticoDao farmaceuticoDao = new FarmaceuticoDao();
 
-        // Crear el controlador del registro
+        // Crear el controlador del registro con el proxy
         new registroController(
                 registerView,
                 usersDao,
                 pacienteDao,
                 medicoDao,
-                farmaceuticoDao
+                farmaceuticoDao,
+                backendProxy
         );
 
         registerView.setVisible(true);
@@ -63,34 +69,46 @@ public class loginController {
             AbstractUser user = usersDao.searchUserById(wrapper, username);
 
             if (user != null && user.validatePassword(password)) {
+                // Conectar al backend y enviar LOGIN via proxy
+                try {
+                    if (!backendProxy.isConnected()) backendProxy.connect();
+                    org.example.common.wrappers.userWrapper uw = new org.example.common.wrappers.userWrapper(user.getId(), user.getName(), user.getRole());
+                    backendProxy.login(uw);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(view, "No se pudo conectar al backend: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 JOptionPane.showMessageDialog(view, "¡Inicio de sesión exitoso!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 view.dispose();
+
+                // Servicios remotos via proxy
+                RemotePrescripcionService remotePresc = new RemotePrescripcionService(backendProxy);
+                RemoteRecetaService remoteReceta = new RemoteRecetaService(backendProxy);
 
                 // Abrir la ventana principal según el rol
                 switch (user.getRole().toLowerCase()) {
                     case "admin":
                         adminView adminPanel = new adminView();
                         new adminViewController(
-                                medicoDao,                          // 1️ MedicoDao
-                                farmaceuticoDao,                    // 2️ FarmaceuticoDao
-                                adminPanel.getFarmaceuticoPanel(),  // 3️ FarmaceuticoView
-                                adminPanel.getMedicoPanel(),        // 4️ MedicoView
-                                adminPanel.getPacientePanel(),      // 5️ PacienteView
-                                pacienteDao,                         // 6 PacienteDao
-                                recetaDao,                          // 7️ RecetaDao
-                                adminPanel.getRecetaView(),         // 8️ RecetaView
-                                medicamentoDao,                     // 9️ MedicamentoDao
-                                adminPanel.getMedicamentoView()     // 10️ MedicamentoView
+                                medicoDao,
+                                farmaceuticoDao,
+                                adminPanel.getFarmaceuticoPanel(),
+                                adminPanel.getMedicoPanel(),
+                                adminPanel.getPacientePanel(),
+                                pacienteDao,
+                                recetaDao,
+                                adminPanel.getRecetaView(),
+                                medicamentoDao,
+                                adminPanel.getMedicamentoView()
                         );
                         adminPanel.setVisible(true);
-                        System.out.println("Abrir vista de admin");
                         break;
                     case "medico":
-                        System.out.println("Abrir vista de médico");
                         medicoPanel medicoPanel = new medicoPanel();
-                        org.example.backend.service.PrescripcionService prescripcionController = new org.example.backend.service.PrescripcionService(pacienteDao, medicoDao, new RecetaDao(), medicamentoDao);
-                        // instantiate controller without assignment to avoid unused-variable warning
-                        new medicoViewController(medicoPanel.getPrescribir(), prescripcionController, recetaDao, medicoPanel.getRecetaView(), username);
+                        new medicoViewController_Remote(medicoPanel.getPrescribir(), remotePresc, remoteReceta, username);
+                        new recetaController_Remote(medicoPanel.getRecetaView(), remoteReceta);
                         medicoPanel.setVisible(true);
                         break;
                     case "paciente":
