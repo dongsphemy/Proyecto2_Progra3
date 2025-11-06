@@ -1,6 +1,7 @@
 package org.example.frontend.View;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class registroView extends JFrame{
     private JPanel panel;
@@ -26,50 +27,83 @@ public class registroView extends JFrame{
 
     public registroView() {
         setTitle("Register");
-        setSize(400, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel = new JPanel(new GridBagLayout());
+        panel.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        int row = 0;
 
         JLabel rolLabel = new JLabel("Rol:");
         comboBoxRol = new JComboBox(new String[]{"Paciente", "Medico", "Farmaceutico", "Admin"});
-        panel.add(rolLabel);
-        panel.add(comboBoxRol);
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0; gbc.gridwidth = 1; gbc.fill = GridBagConstraints.NONE;
+        panel.add(rolLabel, gbc);
+        gbc.gridx = 1; gbc.gridy = row; gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(comboBoxRol, gbc);
+        row++;
 
         nombre = new JLabel("Nombre:");
         campoNombre = new JTextField(12);
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
+        panel.add(nombre, gbc);
+        gbc.gridx = 1; gbc.gridy = row; gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(campoNombre, gbc);
+        row++;
+
         idLabel = new JLabel("Id:");
         campoId = new JTextField(12);
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
+        panel.add(idLabel, gbc);
+        gbc.gridx = 1; gbc.gridy = row; gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(campoId, gbc);
+        row++;
+
         especialidad = new JLabel("Especialidad:");
         campoEspecialidad = new JTextField(12);
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
+        panel.add(especialidad, gbc);
+        gbc.gridx = 1; gbc.gridy = row; gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(campoEspecialidad, gbc);
+        row++;
+
         fecha = new JLabel("Fecha de nacimiento:");
         campoFecha = new JTextField(12);
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
+        panel.add(fecha, gbc);
+        gbc.gridx = 1; gbc.gridy = row; gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(campoFecha, gbc);
+        row++;
+
         contraRegistro = new JLabel("Contraseña:");
         campoContra = new JPasswordField(12);
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
+        panel.add(contraRegistro, gbc);
+        gbc.gridx = 1; gbc.gridy = row; gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(campoContra, gbc);
+        row++;
+
         JLabel confirmaLabel = new JLabel("Confirmar contraseña:");
         campoConfirmaContra = new JPasswordField(12);
-        registrarseButton = new JButton("Registrarse");
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
+        panel.add(confirmaLabel, gbc);
+        gbc.gridx = 1; gbc.gridy = row; gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(campoConfirmaContra, gbc);
+        row++;
 
-        panel.add(nombre);
-        panel.add(campoNombre);
-        panel.add(idLabel);
-        panel.add(campoId);
-        panel.add(especialidad);
-        panel.add(campoEspecialidad);
-        panel.add(fecha);
-        panel.add(campoFecha);
-        panel.add(contraRegistro);
-        panel.add(campoContra);
-        panel.add(confirmaLabel);
-        panel.add(campoConfirmaContra);
-        panel.add(registrarseButton);
+        registrarseButton = new JButton("Registrarse");
+        gbc.gridx = 1; gbc.gridy = row; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE; gbc.anchor = GridBagConstraints.LINE_END;
+        panel.add(registrarseButton, gbc);
+        row++;
 
         loginHyperlink = new JLabel("<html><a href=''>Volver al Login</a></html>");
-        loginHyperlink.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        loginHyperlink.setCursor(new Cursor(Cursor.HAND_CURSOR));
         loginHyperlink.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -78,10 +112,12 @@ public class registroView extends JFrame{
                 dispose();
             }
         });
-        panel.add(loginHyperlink);
+        gbc.gridx = 0; gbc.gridy = row; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(loginHyperlink, gbc);
 
         add(panel);
 
+        // Comportamiento dinámico por rol
         comboBoxRol.addActionListener(e -> {
             String rol = comboBoxRol.getSelectedItem().toString();
             if (rol.equals("Paciente")) {
@@ -167,6 +203,9 @@ public class registroView extends JFrame{
                 JOptionPane.showMessageDialog(this, "Error al registrar usuario. Verifica los datos.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        pack();
+        setLocationRelativeTo(null);
     }
 
     public static void main(String[] args) {
@@ -212,10 +251,12 @@ public class registroView extends JFrame{
 
 
     public JTextField getTxtConfirmPassword() {
-        return campoEspecialidad;
+        // Devolver el campo de confirmación de contraseña para compatibilidad
+        return campoConfirmaContra;
     }
 
     public JComboBox getComboBoxRolComponent() {
         return comboBoxRol;
     }
 }
+

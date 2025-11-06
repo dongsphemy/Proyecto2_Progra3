@@ -112,7 +112,10 @@ public class loginController {
                         medicoPanel.setVisible(true);
                         break;
                     case "paciente":
-                        System.out.println("Abrir vista de paciente");
+                        JOptionPane.showMessageDialog(view,
+                            "Bienvenido, " + user.getName(),
+                            "Bienvenida",
+                            JOptionPane.INFORMATION_MESSAGE);
                         break;
                     case "farmaceuta":
                         System.out.println("Abrir vista de farmacéutico");

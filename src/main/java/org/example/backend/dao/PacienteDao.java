@@ -207,4 +207,68 @@ public class PacienteDao {
         }
         return -1;
     }
+
+    // 🔹 Obtener paciente por su usuario_id numérico
+    public Paciente getPacienteByUserId(int userId) {
+        String sql = """
+            SELECT u.name, u.username, u.password, p.fecha_nacimiento, p.telefono
+            FROM usuarios u
+            JOIN pacientes p ON u.id = p.usuario_id
+            WHERE u.id = ?;
+        """;
+
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Paciente(
+                        rs.getString("name"),
+                        rs.getString("password"),
+                        rs.getString("username"),
+                        rs.getString("fecha_nacimiento"),
+                        rs.getString("telefono")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    // 🔹 Obtener paciente por el ID de la tabla pacientes (pacientes.id)
+    public Paciente getPacienteByPacienteId(int pacienteId) {
+        String sql = """
+            SELECT u.name, u.username, u.password, p.fecha_nacimiento, p.telefono
+            FROM usuarios u
+            JOIN pacientes p ON u.id = p.usuario_id
+            WHERE p.id = ?;
+        """;
+
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, pacienteId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Paciente(
+                        rs.getString("name"),
+                        rs.getString("password"),
+                        rs.getString("username"),
+                        rs.getString("fecha_nacimiento"),
+                        rs.getString("telefono")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

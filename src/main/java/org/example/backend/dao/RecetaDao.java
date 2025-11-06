@@ -109,6 +109,17 @@ public class RecetaDao {
                 receta.setFechaConfeccion(rs.getDate("fecha_confeccion").toLocalDate());
                 receta.setEstado(rs.getString("estado"));
                 receta.setFechaRetiro(rs.getDate("fecha_retiro") != null ? rs.getDate("fecha_retiro").toLocalDate() : null);
+
+                // Cargar medico y paciente desde sus IDs (medicos.id y pacientes.id)
+                int medicoId = rs.getInt("medico_id");
+                int pacienteId = rs.getInt("paciente_id");
+
+                MedicoDao medicoDao = new MedicoDao();
+                PacienteDao pacienteDao = new PacienteDao();
+
+                receta.setMedico(medicoDao.getMedicoByMedicoId(medicoId));
+                receta.setPaciente(pacienteDao.getPacienteByPacienteId(pacienteId));
+
                 // Cargar medicamentos desde detalle_medicamento usando id interno
                 int internalId = rs.getInt("id");
                 DetalleMedicamentoDao detalleDao = new DetalleMedicamentoDao();
@@ -127,6 +138,9 @@ public class RecetaDao {
         List<Receta> recetas = new ArrayList<>();
         String sql = "SELECT * FROM recetas";
 
+        MedicoDao medicoDao = new MedicoDao();
+        PacienteDao pacienteDao = new PacienteDao();
+
         try (Connection conn = ConexionDB.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -138,6 +152,13 @@ public class RecetaDao {
                 Date fechaRetiro = rs.getDate("fecha_retiro");
                 if (fechaRetiro != null) receta.setFechaRetiro(fechaRetiro.toLocalDate());
                 receta.setEstado(rs.getString("estado"));
+
+                // Cargar medico y paciente (medicos.id y pacientes.id)
+                int medicoId = rs.getInt("medico_id");
+                int pacienteId = rs.getInt("paciente_id");
+
+                receta.setMedico(medicoDao.getMedicoByMedicoId(medicoId));
+                receta.setPaciente(pacienteDao.getPacienteByPacienteId(pacienteId));
 
                 // Cargar detalles
                 DetalleMedicamentoDao detalleDao = new DetalleMedicamentoDao();
@@ -211,6 +232,9 @@ public class RecetaDao {
 
         String sql = "SELECT * FROM recetas";
 
+        MedicoDao medicoDao = new MedicoDao();
+        PacienteDao pacienteDao = new PacienteDao();
+
         try (Connection conn = ConexionDB.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -226,6 +250,13 @@ public class RecetaDao {
                 }
 
                 receta.setEstado(rs.getString("estado"));
+
+                // Cargar medico y paciente (medicos.id y pacientes.id)
+                int medicoId = rs.getInt("medico_id");
+                int pacienteId = rs.getInt("paciente_id");
+
+                receta.setMedico(medicoDao.getMedicoByMedicoId(medicoId));
+                receta.setPaciente(pacienteDao.getPacienteByPacienteId(pacienteId));
 
                 // 🔹 Si quieres también cargar los detalles (medicamentos)
                 DetalleMedicamentoDao detalleDao = new DetalleMedicamentoDao();
