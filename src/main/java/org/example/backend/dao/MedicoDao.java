@@ -181,4 +181,80 @@ public class MedicoDao {
         }
         return -1;
     }
+
+    // 🔹 Obtener el id de la tabla medicos (medicos.id) por username
+    public int getMedicoIdByUsername(String username) {
+        String sql = "SELECT m.id FROM medicos m JOIN usuarios u ON m.usuario_id = u.id WHERE u.username = ?";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("id");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // 🔹 Obtener médico por su usuario_id numérico
+    public Medico getMedicoByUserId(int userId) {
+        String sql = """
+            SELECT u.name, u.username, u.password, m.especialidad
+            FROM usuarios u
+            JOIN medicos m ON u.id = m.usuario_id
+            WHERE u.id = ?;
+        """;
+
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Medico(
+                        rs.getString("name"),
+                        rs.getString("password"),
+                        rs.getString("username"),
+                        rs.getString("especialidad")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    // 🔹 Obtener médico por el ID de la tabla medicos (medicos.id)
+    public Medico getMedicoByMedicoId(int medicoId) {
+        String sql = """
+            SELECT u.name, u.username, u.password, m.especialidad
+            FROM usuarios u
+            JOIN medicos m ON u.id = m.usuario_id
+            WHERE m.id = ?;
+        """;
+
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, medicoId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Medico(
+                        rs.getString("name"),
+                        rs.getString("password"),
+                        rs.getString("username"),
+                        rs.getString("especialidad")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

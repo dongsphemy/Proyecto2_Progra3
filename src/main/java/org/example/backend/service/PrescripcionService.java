@@ -39,17 +39,10 @@ public class PrescripcionService {
         receta.setPaciente(paciente);
         receta.setFechaConfeccion(LocalDate.now());
         receta.setEstado("en_proceso");
-
-        // Antes se intentaba llamar a recetaDao.saveNew(receta) pero la firma del DAO
-        // requiere los IDs numéricos de medico y paciente. Dejamos que este método
-        // solo cree la receta en memoria y proporcionamos guardarReceta(...) para
-        // persistirla correctamente cuando se tengan los IDs necesarios.
         return receta;
     }
 
-    // Persiste una receta creada (o modificada). Se necesita el username del médico
-    // (username usado en tabla usuarios) para resolver el id numérico en la BD.
-    public Receta guardarReceta(Receta receta, String medicoUsername) {
+   public Receta guardarReceta(Receta receta, String medicoUsername) {
         if (receta == null) throw new IllegalArgumentException("Receta nula");
         if (receta.getPaciente() == null || receta.getPaciente().getId() == null) {
             throw new IllegalArgumentException("Receta debe tener un paciente con username (id)");
@@ -58,7 +51,7 @@ public class PrescripcionService {
         int pacienteId = pacienteDao.getPacienteIdByUsername(receta.getPaciente().getId());
         if (pacienteId == -1) throw new IllegalArgumentException("No se encontró el paciente en la base de datos: " + receta.getPaciente().getId());
 
-        int medicoId = medicoDao.getUserIdByUsername(medicoUsername);
+        int medicoId = medicoDao.getMedicoIdByUsername(medicoUsername);
         if (medicoId == -1) throw new IllegalArgumentException("No se encontró el médico en la base de datos: " + medicoUsername);
 
         return recetaDao.saveNew(receta, medicoId, pacienteId);
