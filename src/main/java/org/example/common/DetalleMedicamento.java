@@ -6,16 +6,14 @@ public class DetalleMedicamento implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private int id;  // id del detalle (opcional si lo manejas desde la BD)
+    private int id;
     private String codigoMedicamento;
     private int cantidad;
     private String indicaciones;
     private int duracionDias;
-
-    // 🔹 Relación con Medicamento (opcional, no se guarda directamente en la tabla)
     private Medicamento medicamento;
 
-    // ===== Constructores =====
+    //constructores
     public DetalleMedicamento() {}
 
     public DetalleMedicamento(String codigoMedicamento, int cantidad, String indicaciones, int duracionDias) {
@@ -25,7 +23,7 @@ public class DetalleMedicamento implements Serializable {
         this.duracionDias = duracionDias;
     }
 
-    // ===== Getters y Setters =====
+    // getters y setters
     public int getId() {
         return id;
     }

@@ -11,17 +11,17 @@ public class Medicamento implements Serializable {
     private String nombre;
     private String presentacion;
 
-    // 🔹 Constructor vacío (requerido para serialización y frameworks)
+    // constructor vacio
     public Medicamento() {}
 
-    // 🔹 Constructor completo
+    // constructor con parametros
     public Medicamento(String codigo, String nombre, String presentacion) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.presentacion = presentacion;
     }
 
-    // === Getters y Setters ===
+    // getters y setters
     public String getCodigo() { return codigo; }
     public void setCodigo(String codigo) { this.codigo = codigo; }
 

@@ -9,20 +9,20 @@ public class Paciente extends AbstractUser implements Serializable {
     private String fechaNacimiento;
     private String telefono;
 
-    // 🔹 Constructor vacío (requerido para serialización y frameworks)
+    // constructor vacio
     public Paciente() {
         super();
         this.setRole("Paciente");
     }
 
-    // 🔹 Constructor completo
+    // constructor con parametros
     public Paciente(String name, String password, String id, String fechaNacimiento, String telefono) {
         super(name, password, "Paciente", id);
         this.fechaNacimiento = fechaNacimiento;
         this.telefono = telefono;
     }
 
-    // === Getters y Setters ===
+    // getters y setters
     public String getFechaNacimiento() {
         return fechaNacimiento;
     }
@@ -39,7 +39,7 @@ public class Paciente extends AbstractUser implements Serializable {
         this.telefono = telefono;
     }
 
-    // === Método toString para depuración ===
+    // metodo toString
     @Override
     public String toString() {
         return "Paciente{" +

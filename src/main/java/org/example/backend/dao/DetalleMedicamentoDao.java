@@ -27,6 +27,13 @@ public class DetalleMedicamentoDao {
         }
     }
 
+    // Helper para usar id_receta lógico
+    public void addDetalleByLogicalId(String idReceta, DetalleMedicamento detalle) {
+        RecetaDao recetaDao = new RecetaDao();
+        int internalId = recetaDao.getInternalId(idReceta);
+        if (internalId != -1) addDetalle(internalId, detalle);
+    }
+
     public List<DetalleMedicamento> getDetallesByRecetaId(int recetaId) {
         List<DetalleMedicamento> detalles = new ArrayList<>();
         String sql = "SELECT * FROM detalle_medicamento WHERE receta_id = ?";
@@ -52,5 +59,17 @@ public class DetalleMedicamentoDao {
         }
 
         return detalles;
+    }
+
+    public void removeDetalleByLogicalIdAndCode(String idReceta, String codigo) {
+        String sql = "DELETE dm FROM detalle_medicamento dm JOIN recetas r ON dm.receta_id = r.id WHERE r.id_receta = ? AND dm.codigo_medicamento = ?";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, idReceta);
+            stmt.setString(2, codigo);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

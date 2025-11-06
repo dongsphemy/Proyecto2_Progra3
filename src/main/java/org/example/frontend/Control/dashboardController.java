@@ -41,6 +41,9 @@ public class dashboardController {
         for (Medicamento m : medicamentoDao.getAllMedicamentos()) {
             combo.addItem(m.getCodigo() + " - " + m.getNombre());
         }
+        // opción para "Todos"
+        combo.insertItemAt("Todos", 0);
+        combo.setSelectedIndex(0);
     }
 
     private void cargarMeses() {
@@ -61,8 +64,9 @@ public class dashboardController {
         String medicamentoCodigo = null;
         int mesInicio = 1;
         int mesFin = 12;
+
         String selectedMedicamento = (String) view.getComboMedicamento().getSelectedItem();
-        if (selectedMedicamento != null && selectedMedicamento.contains(" - ")) {
+        if (selectedMedicamento != null && !selectedMedicamento.equals("Todos") && selectedMedicamento.contains(" - ")) {
             medicamentoCodigo = selectedMedicamento.split(" - ")[0];
         }
         String mesInicioStr = (String) view.getComboMesInicio().getSelectedItem();
@@ -70,22 +74,31 @@ public class dashboardController {
         if (mesInicioStr != null && mesFinStr != null) {
             mesInicio = mesNombreToNumero(mesInicioStr);
             mesFin = mesNombreToNumero(mesFinStr);
+            if (mesFin < mesInicio) { // normalizar rango
+                int tmp = mesInicio; mesInicio = mesFin; mesFin = tmp;
+            }
         }
-        // Line chart: medicamentos prescritos por mes
-        DefaultCategoryDataset lineDataset = new DefaultCategoryDataset();
+
+        // Recargar recetas desde BD
         List<Receta> recetas = Arrays.asList(recetaDao.getAll());
+
+        // Line chart acumulado: recetas (del medicamento o todas) hasta cada mes
+        DefaultCategoryDataset lineDataset = new DefaultCategoryDataset();
+        long acumulado = 0;
         for (int m = mesInicio; m <= mesFin; m++) {
             final int mesLoop = m;
-            final String medicamentoCodigoFinal = medicamentoCodigo;
-            long count = recetas.stream()
-                    .filter(r -> r.getMedicamentos().stream().anyMatch(dm -> medicamentoCodigoFinal == null || dm.getCodigoMedicamento().equals(medicamentoCodigoFinal)))
+            final String codigoFiltro = medicamentoCodigo;
+            long mesCount = recetas.stream()
                     .filter(r -> r.getFechaConfeccion() != null && r.getFechaConfeccion().getMonthValue() == mesLoop)
+                    .filter(r -> codigoFiltro == null || r.getMedicamentos().stream()
+                            .anyMatch(dm -> dm.getCodigoMedicamento() != null && dm.getCodigoMedicamento().equalsIgnoreCase(codigoFiltro)))
                     .count();
+            acumulado += mesCount;
             String mesNombre = LocalDate.of(2000, mesLoop, 1).getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
-            lineDataset.addValue(count, "Prescripciones", mesNombre);
+            lineDataset.addValue(acumulado, "Prescripciones (acumulado)", mesNombre);
         }
         JFreeChart lineChart = ChartFactory.createLineChart(
-                "Medicamentos prescritos por mes",
+                "Cantidad acumulada de recetas",
                 "Mes",
                 "Cantidad",
                 lineDataset
@@ -94,9 +107,13 @@ public class dashboardController {
         view.getLineChartPanel().add(new ChartPanel(lineChart), BorderLayout.CENTER);
         view.getLineChartPanel().revalidate();
         view.getLineChartPanel().repaint();
-        // Pie chart: recetas por estado
+
+        // Pie chart: recetas por estado (del filtro o todas)
+        final String medicamentoFiltro = medicamentoCodigo;
         DefaultPieDataset<String> pieDataset = new DefaultPieDataset<>();
         Map<String, Long> estadoCounts = recetas.stream()
+                .filter(r -> medicamentoFiltro == null || r.getMedicamentos().stream()
+                        .anyMatch(dm -> dm.getCodigoMedicamento() != null && dm.getCodigoMedicamento().equalsIgnoreCase(medicamentoFiltro)))
                 .collect(Collectors.groupingBy(Receta::getEstado, Collectors.counting()));
         for (Map.Entry<String, Long> entry : estadoCounts.entrySet()) {
             pieDataset.setValue(entry.getKey(), entry.getValue());

@@ -36,6 +36,7 @@ public class pacienteController {
         Thread thread = new Thread(() -> {
             pacienteWrapper wrapper = dao.loadPacientes();
             SwingUtilities.invokeLater(() -> {
+                view.clearTable();
                 for (Paciente p : wrapper.getPacientes()) {
                     Object[] row = { p.getId(), p.getName(), p.getFechaNacimiento(), p.getTelefono() };
                     view.modelAddRow(row);
@@ -86,6 +87,23 @@ public class pacienteController {
                     }
                 } else {
                     view.mostrarError("Seleccione un paciente en la tabla");
+                }
+            }
+
+            // Buscar paciente
+            else if (e.getSource().equals(view.getBuscarButton())) {
+                String criterio = view.getCampoBusqNombre();
+                if (criterio == null || criterio.isBlank()) {
+                    view.mostrarError("Ingrese un ID o nombre para buscar");
+                    return;
+                }
+                view.clearTable();
+                pacienteWrapper wrapper = dao.loadPacientes();
+                for (Paciente p : wrapper.getPacientes()) {
+                    if (p.getId().equalsIgnoreCase(criterio) || p.getName().equalsIgnoreCase(criterio)) {
+                        Object[] row = { p.getId(), p.getName(), p.getFechaNacimiento(), p.getTelefono() };
+                        view.modelAddRow(row);
+                    }
                 }
             }
         }

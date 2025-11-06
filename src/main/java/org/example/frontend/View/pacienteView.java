@@ -16,6 +16,8 @@ public class pacienteView extends JPanel {
     private JButton borrarButton;
     private JButton buscarButton;
 
+    private JTextField campoBusqNombre;
+
     private JTable tablaPacientes;
     private DefaultTableModel tableModel;
 
@@ -56,18 +58,26 @@ public class pacienteView extends JPanel {
         panelPaciente.add(labelTelefono);
         panelPaciente.add(campoTelefono);
 
+        JLabel labelBuscar = new JLabel("Buscar (ID o Nombre):");
+        labelBuscar.setBounds(450, 20, 160, 30);
+        campoBusqNombre = new JTextField();
+        campoBusqNombre.setBounds(620, 20, 200, 30);
+
         guardarButton.setBounds(300, 20, 100, 30);
         borrarButton.setBounds(300, 60, 100, 30);
-        buscarButton.setBounds(300, 100, 100, 30);
+        buscarButton.setBounds(620, 60, 100, 30);
         panelPaciente.add(guardarButton);
         panelPaciente.add(borrarButton);
         panelPaciente.add(buscarButton);
 
+        panelPaciente.add(labelBuscar);
+        panelPaciente.add(campoBusqNombre);
+
         JScrollPane scrollPane = new JScrollPane(tablaPacientes);
-        scrollPane.setBounds(20, 230, 600, 150);
+        scrollPane.setBounds(20, 230, 800, 150);
         panelPaciente.add(scrollPane);
 
-        panelPaciente.setPreferredSize(new Dimension(650, 400));
+        panelPaciente.setPreferredSize(new Dimension(850, 420));
         add(panelPaciente, BorderLayout.CENTER);
     }
 
@@ -90,6 +100,8 @@ public class pacienteView extends JPanel {
     public String getCampoPassword() { return new String(campoPassword.getPassword()); }
     public String getCampoFechaNacimiento() { return campoFechaNacimiento.getText(); }
     public String getCampoTelefono() { return campoTelefono.getText(); }
+
+    public String getCampoBusqNombre() { return campoBusqNombre != null ? campoBusqNombre.getText() : ""; }
 
     public void clearAllText() {
         campoId.setText("");

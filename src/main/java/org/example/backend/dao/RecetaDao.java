@@ -82,7 +82,21 @@ public class RecetaDao {
         }
     }
 
-    // 🔹 Buscar receta por ID lógico
+    // Helper: obtener id interno (autoincremental) usando id_receta lógico
+    public int getInternalId(String idReceta) {
+        String sql = "SELECT id FROM recetas WHERE id_receta = ?";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, idReceta);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("id");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // Buscar receta por ID lógico (carga también detalles)
     public Optional<Receta> findById(String idReceta) {
         String sql = "SELECT * FROM recetas WHERE id_receta = ?";
         try (Connection conn = ConexionDB.getConnection();
@@ -95,7 +109,10 @@ public class RecetaDao {
                 receta.setFechaConfeccion(rs.getDate("fecha_confeccion").toLocalDate());
                 receta.setEstado(rs.getString("estado"));
                 receta.setFechaRetiro(rs.getDate("fecha_retiro") != null ? rs.getDate("fecha_retiro").toLocalDate() : null);
-                // No cargar medicamentos desde receta_medicamentos
+                // Cargar medicamentos desde detalle_medicamento usando id interno
+                int internalId = rs.getInt("id");
+                DetalleMedicamentoDao detalleDao = new DetalleMedicamentoDao();
+                receta.setMedicamentos(detalleDao.getDetallesByRecetaId(internalId));
                 return Optional.of(receta);
             }
             return Optional.empty();

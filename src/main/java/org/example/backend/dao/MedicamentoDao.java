@@ -131,11 +131,27 @@ public class MedicamentoDao {
         return medicamentos;
     }
 
-    // NEW: load wrapper with medicamentos
+    // wrapper con medicametno
     public medicamentoWrapper loadMedicamentos() {
         medicamentoWrapper wrapper = new medicamentoWrapper();
         List<Medicamento> list = getAllMedicamentos();
         wrapper.setMedicamentos(list);
         return wrapper;
+    }
+
+    // actualizar medicamento
+    public boolean updateMedicamento(Medicamento medicamento) {
+        String sql = "UPDATE medicamentos SET nombre = ?, presentacion = ? WHERE codigo = ?";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, medicamento.getNombre());
+            stmt.setString(2, medicamento.getPresentacion());
+            stmt.setString(3, medicamento.getCodigo());
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

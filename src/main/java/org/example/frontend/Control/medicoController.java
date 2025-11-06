@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class medicoController{
     private MedicoView view;
@@ -30,6 +31,7 @@ public class medicoController{
         Thread thread = new Thread(() -> {
             medicoWrapper wrapper = dao.loadMedicos();
             SwingUtilities.invokeLater(() -> {
+                limpiarTabla();
                 for (Medico m : wrapper.getMedicos()) {
                     Object[] row = { m.getId(), m.getName(), m.getEspecialidad() };
                     view.modelAddRow(row);
@@ -37,6 +39,12 @@ public class medicoController{
             });
         });
         thread.start();
+    }
+
+    private void limpiarTabla() {
+        while (view.getTablaDoctores().getRowCount() > 0) {
+            ((javax.swing.table.DefaultTableModel) view.getTablaDoctores().getModel()).removeRow(0);
+        }
     }
 
     private class ButtonListener implements ActionListener {
@@ -77,6 +85,22 @@ public class medicoController{
                     }
                 } else {
                     view.mostrarError("Seleccione un médico en la tabla");
+                }
+            }
+
+            // buscar medico
+            else if (e.getSource().equals(view.getBuscarButton())) {
+                String criterio = view.getCampoBusqNombre().getText();
+                if (criterio == null || criterio.isBlank()) {
+                    view.mostrarError("Ingrese un ID o nombre para buscar");
+                    return;
+                }
+                limpiarTabla();
+                List<Medico> lista = dao.loadMedicos().getMedicos();
+                for (Medico m : lista) {
+                    if (m.getId().equalsIgnoreCase(criterio) || m.getName().equalsIgnoreCase(criterio)) {
+                        view.modelAddRow(new Object[]{m.getId(), m.getName(), m.getEspecialidad()});
+                    }
                 }
             }
         }
