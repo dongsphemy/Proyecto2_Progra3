@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class MedicamentoDao {
 
-    // 🔹 Agregar nuevo medicamento
+    // agregar nuevo medicamento
     public boolean addMedicamento(Medicamento medicamento) {
         String sql = "INSERT INTO medicamentos (codigo, nombre, presentacion) VALUES (?, ?, ?)";
 
@@ -33,7 +33,7 @@ public class MedicamentoDao {
         }
     }
 
-    // 🔹 Eliminar medicamento por código
+    //eliminar medicamento por código
     public boolean removeMedicamentoByCodigo(String codigo) {
         String sql = "DELETE FROM medicamentos WHERE codigo = ?";
 
@@ -57,7 +57,7 @@ public class MedicamentoDao {
         }
     }
 
-    // 🔹 Buscar medicamento por código
+    // buscar medicamento por código
     public Optional<Medicamento> findByCodigo(String codigo) {
         String sql = "SELECT * FROM medicamentos WHERE codigo = ?";
 

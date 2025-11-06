@@ -136,7 +136,7 @@ public class FarmaceuticoDao {
         return list;
     }
 
-    // NEW: cargar farmaceuticos en wrapper
+    // cargar farmaceuticos en wrapper
     public FarmaceuticosWrapper loadFarmaceuticos() {
         FarmaceuticosWrapper wrapper = new FarmaceuticosWrapper();
         List<Farmaceutico> list = getAllFarmaceuticos();
